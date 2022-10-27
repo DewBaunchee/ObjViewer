@@ -1,6 +1,7 @@
 package by.poit.app.domain.display.transformation
 
 import by.poit.app.domain.model.primitive.Vector3
+import by.poit.app.domain.model.primitive.Vector3.Companion.dot
 import by.poit.app.domain.model.structure.Matrix
 import kotlin.math.cos
 import kotlin.math.sin
@@ -58,6 +59,56 @@ fun zRotation(on: Double): Matrix {
             doubleArrayOf(sin(on), cos(on), 0.0, 0.0),
             doubleArrayOf(0.0, 0.0, 1.0, 0.0),
             doubleArrayOf(0.0, 0.0, 0.0, 1.0)
+        )
+    )
+}
+
+fun pitchYawRoll(pitch: Double, yaw: Double, roll: Double): Matrix {
+    val halfPitch = 0.5 * pitch
+    val halfYaw = 0.5 * yaw
+    val halfRoll = 0.5 * roll
+
+    val sinPitch = sin(halfPitch)
+    val cosPitch = cos(halfPitch)
+    val sinYaw = sin(halfYaw)
+    val cosYaw = cos(halfYaw)
+    val sinRoll = sin(halfRoll)
+    val cosRoll = cos(halfRoll)
+
+    val x = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll
+    val y = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll
+    val z = sinYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll
+    val w = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll
+
+    val xx = x * x
+    val yy = y * y
+    val zz = z * z
+    val xy = x * y
+    val wz = w * z
+    val xz = x * z
+    val wy = w * y
+    val yz = y * z
+    val wx = w * x
+
+    return Matrix(
+        arrayOf(
+            doubleArrayOf(1 - 2 * (yy + zz), 2 * (xy + wz), 2 * (xz - wy), 0.0),
+            doubleArrayOf(2 * (xy - wz), 1 - 2 * (zz + xx), 2 * (yz + wx), 0.0),
+            doubleArrayOf(2 * (xz + wy), 2 * (yz - wx), 1 - 2 * (yy + xx), 0.0),
+            doubleArrayOf(0.0, 0.0, 0.0, 1.0),
+        )
+    )
+}
+
+fun lookAt(eye: Vector3, target: Vector3, up: Vector3): Matrix {
+    val z = eye.minus(target).normalized()
+    val x = up.cross(z).normalized()
+    return Matrix(
+        arrayOf(
+            doubleArrayOf(x.x, x.y, x.z, -dot(x, eye)),
+            doubleArrayOf(up.x, up.y, up.z, -dot(up, eye)),
+            doubleArrayOf(z.x, z.y, z.z, -dot(z, eye)),
+            doubleArrayOf(0.0, 0.0, 0.0, 1.0),
         )
     )
 }

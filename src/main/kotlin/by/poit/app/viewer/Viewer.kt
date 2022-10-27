@@ -1,23 +1,25 @@
 package by.poit.app.viewer
 
-import by.poit.app.domain.display.Observer
-import by.poit.app.domain.display.adapter.ObjAdapter
-import by.poit.app.domain.display.adapter.PrintAdapter
-import by.poit.app.domain.display.adapter.input.InputAdapter
-import by.poit.app.domain.display.adapter.input.Key
+import by.poit.app.domain.display.Image
+import by.poit.app.domain.display.drawer.obj.ObjDrawer
+import by.poit.app.domain.display.printer.DebugPrinter
+import by.poit.app.domain.model.observer.Observer
 import by.poit.app.domain.model.primitive.Vector3
+import by.poit.app.viewer.input.InputAdapter
+import by.poit.app.viewer.input.Key
 import java.awt.Canvas
 import java.awt.Color
 
 
 class Viewer : Canvas(), Runnable {
 
-    private val inputAdapter = InputAdapter()
-    private val printAdapter = PrintAdapter()
-    private val objAdapter = ObjAdapter({ width }, { height }, printAdapter)
-
     private val observer = Observer()
-    private var obj = ObjSuite.cube.toObj("Cube (Default)")
+
+    private val inputAdapter = InputAdapter()
+    private val debugPrinter = DebugPrinter()
+    private val objDrawer = ObjDrawer()
+
+    private var obj = ObjSuite.cube.toObj("Cube (Default)", observer)
 
     private var running = false
 
@@ -43,8 +45,8 @@ class Viewer : Canvas(), Runnable {
 
         addKeyListener(inputAdapter)
 
-        inputAdapter.subscribe(Key.F1) { printAdapter.generalEnabled = !printAdapter.generalEnabled }
-        inputAdapter.subscribe(Key.F2) { printAdapter.verticesEnabled = !printAdapter.verticesEnabled }
+        inputAdapter.subscribe(Key.F1) { debugPrinter.generalEnabled = !debugPrinter.generalEnabled }
+        inputAdapter.subscribe(Key.F2) { debugPrinter.verticesEnabled = !debugPrinter.verticesEnabled }
         inputAdapter.subscribe(Key.MINUS) { observer.decreaseSpeed() }
         inputAdapter.subscribe(Key.PLUS) { observer.increaseSpeed() }
     }
@@ -55,9 +57,10 @@ class Viewer : Canvas(), Runnable {
         graphics.color = Color.black
         graphics.fillRect(0, 0, width, height)
 
-        objAdapter.draw(graphics, observer, obj)
-        printAdapter.print(graphics, observer, obj)
-
+        val image = Image(width, height)
+        objDrawer.draw(image, obj)
+        graphics.drawImage(image.drawable, 0, 0, null)
+        debugPrinter.print(graphics, observer, obj)
         graphics.dispose()
 
         bufferStrategy.show()
@@ -65,31 +68,51 @@ class Viewer : Canvas(), Runnable {
 
     private fun update(delta: Long) {
         inputAdapter.handle {
-            on(Key.NUM2) { obj = ObjSuite.cube.toObj("Cube") } ||
-                on(Key.NUM3) { obj = ObjSuite.star.toObj("Star") } ||
-                on(Key.NUM4) { obj = ObjSuite.building.toObj("Building") } ||
-                on(Key.NUM5) { obj = ObjSuite.ar15.toObj("AR 15") }
+            on(Key.NUM1) { obj = ObjSuite.cube.toObj("Cube", observer) } ||
+                on(Key.NUM2) { obj = ObjSuite.star.toObj("Star", observer) } ||
+                on(Key.NUM3) { obj = ObjSuite.building.toObj("Building", observer) } ||
+                on(Key.NUM4) { obj = ObjSuite.ar15.toObj("AR 15", observer) }
+            on(Key.NUM0) { obj = ObjSuite.triangle.toObj("Triangle", observer) }
 
-            on(Key.W) { observer.move(Vector3(0, 0, -delta * observer.speed)) }
-            on(Key.S) { observer.move(Vector3(0, 0, delta * observer.speed)) }
-            on(Key.A) { observer.move(Vector3(delta * observer.speed, 0, 0)) }
-            on(Key.D) { observer.move(Vector3(-delta * observer.speed, 0, 0)) }
-            on(Key.LSHIFT) { observer.move(Vector3(0, delta * observer.speed, 0)) }
-            on(Key.LCTRL) { observer.move(Vector3(0, -delta * observer.speed, 0)) }
+            doMovement(delta)
 
-            on(Key.LEFT) { obj.rotate(Vector3(0, delta * observer.rotationSpeed, 0)) }
-            on(Key.RIGHT) { obj.rotate(Vector3(0, -delta * observer.rotationSpeed, 0)) }
-            on(Key.UP) { obj.rotate(Vector3(-delta * observer.rotationSpeed, 0, 0)) }
-            on(Key.DOWN) { obj.rotate(Vector3(delta * observer.rotationSpeed, 0, 0)) }
+            on(Key.LEFT) { observer.rotate(Vector3(0, -delta * observer.rotationSpeed, 0)) }
+            on(Key.RIGHT) { observer.rotate(Vector3(0, delta * observer.rotationSpeed, 0)) }
+            on(Key.UP) { observer.rotate(Vector3(delta * observer.rotationSpeed, 0, 0)) }
+            on(Key.DOWN) { observer.rotate(Vector3(-delta * observer.rotationSpeed, 0, 0)) }
 
-            on(Key.T) { obj.scale(Vector3(-delta * obj.scaleSpeed, 0, 0)) }
-            on(Key.Y) { obj.scale(Vector3(delta * obj.scaleSpeed, 0, 0)) }
-            on(Key.G) { obj.scale(Vector3(0, -delta * obj.scaleSpeed, 0)) }
-            on(Key.H) { obj.scale(Vector3(0, delta * obj.scaleSpeed, 0)) }
-            on(Key.B) { obj.scale(Vector3(0, 0, -delta * obj.scaleSpeed)) }
-            on(Key.N) { obj.scale(Vector3(0, 0, delta * obj.scaleSpeed)) }
+            on(Key.T) { obj.source.scale(Vector3(-delta * obj.source.scaleSpeed, 0, 0)) }
+            on(Key.Y) { obj.source.scale(Vector3(delta * obj.source.scaleSpeed, 0, 0)) }
+            on(Key.G) { obj.source.scale(Vector3(0, -delta * obj.source.scaleSpeed, 0)) }
+            on(Key.H) { obj.source.scale(Vector3(0, delta * obj.source.scaleSpeed, 0)) }
+            on(Key.B) { obj.source.scale(Vector3(0, 0, -delta * obj.source.scaleSpeed)) }
+            on(Key.N) { obj.source.scale(Vector3(0, 0, delta * obj.source.scaleSpeed)) }
 
-            on(Key.R) { obj.reset(); observer.reset() }
+            on(Key.R) { obj.source.reset(); observer.reset() }
+        }
+    }
+
+    private fun doMovement(delta: Long) {
+        inputAdapter.handle {
+            val speed = observer.speed * if (isPressed(Key.LSHIFT)) 2 else 1
+            val direction = observer.direction()
+
+            val range = delta * speed
+            var shift = Vector3(0)
+            if (isPressed(Key.W))
+                shift = shift.plus(direction.multiply(range))
+            if (isPressed(Key.S))
+                shift = shift.minus(direction.multiply(range))
+            if (isPressed(Key.A))
+                shift = shift.minus(direction.cross(observer.up).normalized().multiply(range))
+            if (isPressed(Key.D))
+                shift = shift.plus(direction.cross(observer.up).normalized().multiply(range))
+            if (isPressed(Key.SPACE))
+                shift = shift.plus(observer.up.multiply(range))
+            if (isPressed(Key.LCTRL))
+                shift = shift.minus(observer.up.multiply(range))
+
+            observer.move(shift)
         }
     }
 }

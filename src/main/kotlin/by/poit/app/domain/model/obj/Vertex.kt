@@ -5,6 +5,20 @@ import by.poit.app.domain.model.structure.Matrix
 
 class Vertex(val x: Double, val y: Double, val z: Double, val w: Double) {
 
+    constructor(x: Number, y: Number, z: Number, w: Number) : this(
+        x.toDouble(),
+        y.toDouble(),
+        z.toDouble(),
+        w.toDouble()
+    )
+
+    constructor(xyz: Vector3, w: Number) : this(
+        xyz.x,
+        xyz.y,
+        xyz.z,
+        w.toDouble()
+    )
+
     fun multiply(matrix: Matrix): Vertex {
         val result = DoubleArray(4) { 0.0 }
 
@@ -35,10 +49,18 @@ class Vertex(val x: Double, val y: Double, val z: Double, val w: Double) {
     }
 
     fun vector3(): Vector3 {
-        return Vector3(x / w, y / w, z / w)
+        return Vector3(x, y, z)
+    }
+
+    fun wDivided(): Vertex {
+        return Vertex(x / w, y / w, z / w, 1.0)
     }
 
     fun array(): DoubleArray {
         return doubleArrayOf(x, y, z, w)
+    }
+
+    fun isPosition(): Boolean {
+        return w == 1.0
     }
 }

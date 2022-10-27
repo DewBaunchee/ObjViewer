@@ -1,4 +1,4 @@
-package by.poit.app.domain.display.adapter.input
+package by.poit.app.viewer.input
 
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -44,7 +44,7 @@ class InputAdapter : KeyAdapter() {
         }
     }
 
-    private fun isPressed(keyCode: Int): Boolean {
+    fun isPressed(keyCode: Int): Boolean {
         return pressedKeySet.contains(keyCode)
     }
 }

@@ -1,5 +1,6 @@
 package by.poit.app.domain.model.obj
 
+import by.poit.app.domain.model.primitive.Vector3
 import java.io.File
 
 class ObjParser {
@@ -7,6 +8,7 @@ class ObjParser {
     fun parse(file: File): Obj.Source {
         val vertices = mutableListOf<Vertex>()
         val polygons = mutableListOf<Polygon>()
+        val normals = mutableListOf<Vector3>()
         file.forEachLine { line ->
             if (line.startsWith("#")) return@forEachLine
 
@@ -27,22 +29,44 @@ class ObjParser {
 
                 "f" -> {
                     val vertexIndices = mutableListOf<Int>()
+                    val vertexTextureIndices = mutableListOf<Int>()
+                    val vertexNormalsIndices = mutableListOf<Int>()
 
-                    parts.forEachIndexed { index, part ->
-                        if (index == 0) return@forEachIndexed
+                    parts.forEachIndexed { partIndex, part ->
+                        if (partIndex == 0 || part.isBlank()) return@forEachIndexed
 
-                        part.split("/").forEachIndexed inner@{ index, value ->
-                            if (value.isBlank()) return@inner
-                            when (index) {
-                                0 -> vertexIndices.add(value.toInt())
+                        part.split("/")
+                            .let { parts -> parts.filter { it.isNotBlank() } }
+                            .let {
+                                vertexIndices.add(it[0].toInt())
+                                vertexTextureIndices.add(it.getOrElse(1) { "0" }.toInt())
+                                vertexNormalsIndices.add(it.getOrElse(2) { "0" }.toInt())
                             }
-                        }
                     }
 
-                    polygons.add(Polygon(vertexIndices))
+
+                    polygons.add(Polygon(
+                        vertexIndices.mapIndexed {index, value ->
+                            Polygon.Component(value, vertexTextureIndices[index], vertexNormalsIndices[index])
+                        }
+                    ))
+                }
+
+                "vn" -> {
+                    normals.add(
+                        Vector3(
+                            parts[1].toDouble(),
+                            parts[2].toDouble(),
+                            parts[3].toDouble(),
+                        )
+                    )
                 }
             }
         }
-        return Obj.Source(vertices, polygons)
+        return Obj.Source(
+            vertices,
+            polygons,
+            normals
+        )
     }
 }

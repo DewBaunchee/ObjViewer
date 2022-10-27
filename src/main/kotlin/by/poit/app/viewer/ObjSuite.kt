@@ -12,5 +12,6 @@ class ObjSuite {
         val star by lazy { parser.parse(File("star.obj")) }
         val building by lazy { parser.parse(File("building.obj")) }
         val cube by lazy { parser.parse(File("cube.obj")) }
+        val triangle by lazy { parser.parse(File("triangle.obj")) }
     }
 }

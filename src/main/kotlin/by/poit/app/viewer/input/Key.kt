@@ -1,4 +1,4 @@
-package by.poit.app.domain.display.adapter.input
+package by.poit.app.viewer.input
 
 class Key {
 
@@ -10,11 +10,15 @@ class Key {
         val NUM5 = '5'.toInt()
         val NUM6 = '6'.toInt()
         val NUM7 = '7'.toInt()
+        val NUM8 = '8'.toInt()
+        val NUM9 = '9'.toInt()
+        val NUM0 = '0'.toInt()
 
         val W = 'W'.toInt()
         val A = 'A'.toInt()
         val S = 'S'.toInt()
         val D = 'D'.toInt()
+        val SPACE = 32
         val LSHIFT = 16
         val LCTRL = 17
 
