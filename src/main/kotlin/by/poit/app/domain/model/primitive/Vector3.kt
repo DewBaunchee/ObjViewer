@@ -24,6 +24,14 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         fun cos(first: Vector3, second: Vector3): Double {
             return dot(first, second) / (first.module() * second.module())
         }
+
+        fun reflect(vector: Vector3, normal: Vector3): Vector3 {
+            return vector.minus(normal.multiply(dot(vector, normal)).multiply(2.0))
+        }
+    }
+
+    fun copy(): Vector3 {
+        return Vector3(x, y, z)
     }
 
     fun multiply(matrix: Matrix): Vector3 {
@@ -38,12 +46,10 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         return Vector3(x * value, y * value, z * value)
     }
 
-    fun add(on: Vector3): Vector3 {
-        return Vector3(
-            x + on.x,
-            y + on.y,
-            z + on.z
-        )
+    fun add(on: Vector3) {
+        x += on.x
+        y += on.y
+        z += on.z
     }
 
     fun minus(vector: Vector3): Vector3 {
@@ -78,6 +84,10 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         val module = module()
         if (module == 0.0 || module == 1.0) return this
         return Vector3(x / module, y / module, z / module)
+    }
+
+    fun distance(vector: Vector3): Double {
+        return this.minus(vector).module()
     }
 
     override fun toString(): String {

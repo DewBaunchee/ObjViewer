@@ -17,7 +17,7 @@ class Viewer : Canvas(), Runnable {
 
     private val inputAdapter = InputAdapter()
     private val debugPrinter = DebugPrinter()
-    private val objDrawer = ObjDrawer()
+    val objDrawer = ObjDrawer()
 
     private var obj = ObjSuite.cube.toObj("Cube (Default)", observer)
 
@@ -69,17 +69,21 @@ class Viewer : Canvas(), Runnable {
     private fun update(delta: Long) {
         inputAdapter.handle {
             on(Key.NUM1) { obj = ObjSuite.cube.toObj("Cube", observer) } ||
-                on(Key.NUM2) { obj = ObjSuite.star.toObj("Star", observer) } ||
+                on(Key.NUM2) {
+                    obj = ObjSuite.star.toObj("Star", observer)
+                    observer.position = Vector3(0, 0, -1000)
+                } ||
                 on(Key.NUM3) { obj = ObjSuite.building.toObj("Building", observer) } ||
                 on(Key.NUM4) { obj = ObjSuite.ar15.toObj("AR 15", observer) }
+                on(Key.NUM5) { obj = ObjSuite.icosphere.toObj("AR 15", observer) }
             on(Key.NUM0) { obj = ObjSuite.triangle.toObj("Triangle", observer) }
 
             doMovement(delta)
 
-            on(Key.LEFT) { observer.rotate(Vector3(0, -delta * observer.rotationSpeed, 0)) }
-            on(Key.RIGHT) { observer.rotate(Vector3(0, delta * observer.rotationSpeed, 0)) }
-            on(Key.UP) { observer.rotate(Vector3(delta * observer.rotationSpeed, 0, 0)) }
-            on(Key.DOWN) { observer.rotate(Vector3(-delta * observer.rotationSpeed, 0, 0)) }
+            on(Key.LEFT) { obj.source.rotate(Vector3(0, -delta * observer.rotationSpeed, 0)) }
+            on(Key.RIGHT) { obj.source.rotate(Vector3(0, delta * observer.rotationSpeed, 0)) }
+            on(Key.UP) { obj.source.rotate(Vector3(delta * observer.rotationSpeed, 0, 0)) }
+            on(Key.DOWN) { obj.source.rotate(Vector3(-delta * observer.rotationSpeed, 0, 0)) }
 
             on(Key.T) { obj.source.scale(Vector3(-delta * obj.source.scaleSpeed, 0, 0)) }
             on(Key.Y) { obj.source.scale(Vector3(delta * obj.source.scaleSpeed, 0, 0)) }
@@ -95,22 +99,20 @@ class Viewer : Canvas(), Runnable {
     private fun doMovement(delta: Long) {
         inputAdapter.handle {
             val speed = observer.speed * if (isPressed(Key.LSHIFT)) 2 else 1
-            val direction = observer.direction()
-
             val range = delta * speed
             var shift = Vector3(0)
             if (isPressed(Key.W))
-                shift = shift.plus(direction.multiply(range))
+                shift = shift.plus(Vector3(0, 0, -range))
             if (isPressed(Key.S))
-                shift = shift.minus(direction.multiply(range))
+                shift = shift.plus(Vector3(0, 0, range))
             if (isPressed(Key.A))
-                shift = shift.minus(direction.cross(observer.up).normalized().multiply(range))
+                shift = shift.plus(Vector3(range, 0, 0))
             if (isPressed(Key.D))
-                shift = shift.plus(direction.cross(observer.up).normalized().multiply(range))
+                shift = shift.plus(Vector3(-range, 0, 0))
             if (isPressed(Key.SPACE))
-                shift = shift.plus(observer.up.multiply(range))
+                shift = shift.plus(Vector3(0, range, 0))
             if (isPressed(Key.LCTRL))
-                shift = shift.minus(observer.up.multiply(range))
+                shift = shift.plus(Vector3(0, -range, 0))
 
             observer.move(shift)
         }

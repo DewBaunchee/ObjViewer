@@ -1,13 +1,18 @@
 package by.poit.app.domain.model.obj
 
+import by.poit.app.domain.display.drawer.mapNormalized
 import by.poit.app.domain.display.drawer.mapToVector3
-import by.poit.app.domain.display.drawer.map
 import by.poit.app.domain.display.transformation.*
 import by.poit.app.domain.model.observer.Observer
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.structure.Matrix
 
 class Obj(val name: String, val observer: Observer, val source: Source) {
+
+    var kA = 0.3
+    var kD = 1.0
+    var kS = 0.0
+    var shininess = 0.0
 
     lateinit var translation: Matrix private set
     lateinit var scale: Matrix private set
@@ -39,13 +44,13 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
         full = this.viewport.multiply(projection).multiply(worldView)
 
         viewVertices = source.vertices.mapToVector3(worldView)
-        viewNormals = source.normals.map(worldView.inverted().transposed())
+        viewNormals = source.normals.mapNormalized(worldView.inverted().transposed())
         vertices = source.vertices.mapToVector3(full)
     }
 
     data class Source(
         val vertices: List<Vertex>,
-        val polygons: List<Polygon>,
+        val faces: List<Face>,
         val normals: List<Vector3>
     ) {
 
@@ -57,15 +62,15 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
 
         val scaleSpeed = 0.001
 
-        var translation = translationDefault
+        var translation = translationDefault.copy()
             private set
-        var scale = scaleDefault
+        var scale = scaleDefault.copy()
             private set
-        var rotation = rotationDefault
+        var rotation = rotationDefault.copy()
             private set
 
         fun move(on: Vector3) {
-            translation = translation.add(
+            translation.add(
                 on
                     .multiply(xRotation(rotation.x))
                     .multiply(yRotation(rotation.y))
@@ -74,17 +79,17 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
         }
 
         fun scale(on: Vector3) {
-            scale = scale.add(on)
+            scale.add(on)
         }
 
         fun rotate(on: Vector3) {
-            rotation = rotation.add(on)
+            rotation.add(on)
         }
 
         fun reset() {
-            translation = translationDefault
-            scale = scaleDefault
-            rotation = rotationDefault
+            translation = translationDefault.copy()
+            scale = scaleDefault.copy()
+            rotation = rotationDefault.copy()
         }
 
         fun toObj(name: String, observer: Observer): Obj {
@@ -93,6 +98,6 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
     }
 
     override fun toString(): String {
-        return "Object $name [vertices=${source.vertices.size}, polygons=${source.polygons.size}] - ${source.translation}"
+        return "Object $name [vertices=${source.vertices.size}, polygons=${source.faces.size}] - ${source.translation}"
     }
 }

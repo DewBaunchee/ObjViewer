@@ -2,7 +2,7 @@ package by.poit.app.domain.model.structure
 
 import by.poit.app.domain.model.primitive.Vector3
 
-class Line(val from: Vector3, val to: Vector3) {
+class VectorLine(val from: Vector3, val to: Vector3) {
 
     fun atY(y: Double): Vector3 {
         return Vector3(

@@ -27,7 +27,13 @@ fun List<Vertex>.mapToVector3(transformation: Matrix): List<Vector3> {
 
 fun List<Vector3>.map(transformation: Matrix): List<Vector3> {
     return this.parallelStream()
-        .map { vertex -> vertex.multiply(transformation) }
+        .map { vector -> vector.multiply(transformation) }
+        .toList()
+}
+
+fun List<Vector3>.mapNormalized(transformation: Matrix): List<Vector3> {
+    return this.parallelStream()
+        .map { vector -> vector.multiply(transformation).normalized() }
         .toList()
 }
 

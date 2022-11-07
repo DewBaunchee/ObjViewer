@@ -7,7 +7,7 @@ class ObjParser {
 
     fun parse(file: File): Obj.Source {
         val vertices = mutableListOf<Vertex>()
-        val polygons = mutableListOf<Polygon>()
+        val faces = mutableListOf<Face>()
         val normals = mutableListOf<Vector3>()
         file.forEachLine { line ->
             if (line.startsWith("#")) return@forEachLine
@@ -45,9 +45,9 @@ class ObjParser {
                     }
 
 
-                    polygons.add(Polygon(
+                    faces.add(Face(
                         vertexIndices.mapIndexed {index, value ->
-                            Polygon.Component(value, vertexTextureIndices[index], vertexNormalsIndices[index])
+                            Face.Component(value, vertexTextureIndices[index], vertexNormalsIndices[index])
                         }
                     ))
                 }
@@ -65,7 +65,7 @@ class ObjParser {
         }
         return Obj.Source(
             vertices,
-            polygons,
+            faces,
             normals
         )
     }

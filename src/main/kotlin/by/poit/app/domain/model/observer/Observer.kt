@@ -1,15 +1,20 @@
 package by.poit.app.domain.model.observer
 
-import by.poit.app.domain.display.transformation.lookAt
+import by.poit.app.domain.display.transformation.translation
+import by.poit.app.domain.display.transformation.xRotation
+import by.poit.app.domain.display.transformation.yRotation
+import by.poit.app.domain.display.transformation.zRotation
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.structure.Matrix
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.max
+import kotlin.math.min
 
 class Observer {
 
     companion object {
         val translationDefault = Vector3(0, 0, -10)
-        val rotationDefault = Vector3(0, 0, 0)
+        val rotationDefault = Vector3(0, PI, PI)
     }
 
     var speed = 0.01
@@ -19,46 +24,36 @@ class Observer {
 
     val rotationSpeed = 0.0025
 
-    val up = Vector3(0, 1, 0)
-    var position = translationDefault
-        private set
-    private var rotation = rotationDefault
-
-    val pitch get() = rotation.x
-    val yaw get() = rotation.y
-    val roll get() = rotation.z
+    var position = translationDefault.copy()
+    private var rotation = rotationDefault.copy()
 
     val fov = PI / 4
     val zNear = 1.0
     val zFar = 1000.0
 
-    fun direction(): Vector3 {
-        return Vector3(
-            cos(pitch) * sin(yaw),
-            sin(pitch),
-            cos(pitch) * cos(yaw)
-        )
-    }
-
     fun view(): Matrix {
-        return lookAt(
-            position,
-            position.plus(direction()),
-            up
-        )
+        return translation(position)
+            .multiply(zRotation(rotation.z))
+            .multiply(yRotation(rotation.y))
+            .multiply(xRotation(rotation.x))
     }
 
     fun move(on: Vector3) {
-        position = position.add(on)
+        position.add(
+            on
+                .multiply(xRotation(rotation.x))
+                .multiply(yRotation(rotation.y))
+                .multiply(zRotation(rotation.z))
+        )
     }
 
     fun rotate(on: Vector3) {
-        rotation = rotation.add(on)
+        rotation.add(on)
     }
 
     fun reset() {
-        position = translationDefault
-        rotation = rotationDefault
+        position = translationDefault.copy()
+        rotation = rotationDefault.copy()
     }
 
     override fun toString(): String {

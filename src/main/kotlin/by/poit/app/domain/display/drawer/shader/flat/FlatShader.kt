@@ -1,10 +1,11 @@
-package by.poit.app.domain.display.drawer.polygon
+package by.poit.app.domain.display.drawer.shader.flat
 
 import by.poit.app.domain.display.Image
 import by.poit.app.domain.display.drawer.acquire
 import by.poit.app.domain.display.drawer.lightning.Lambert
+import by.poit.app.domain.display.drawer.shader.SimpleShader
+import by.poit.app.domain.model.obj.Face
 import by.poit.app.domain.model.obj.Obj
-import by.poit.app.domain.model.obj.Polygon
 import by.poit.app.domain.model.obj.Vertex
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.primitive.Vector3.Companion.cos
@@ -12,23 +13,27 @@ import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-class FlatShader : Shader() {
+class FlatShader : SimpleShader() {
 
-    override fun draw(image: Image, obj: Obj, polygon: Polygon) {
-        polygon.faces.forEach { face ->
+    private val lambert = Lambert()
+
+    override fun draw(image: Image, obj: Obj, face: Face) {
+        face.triangles.forEach { triangle ->
             val observerPosition = obj.observer.position.multiply(obj.worldView)
-            val normal = face.normalIn(obj)
-            if (cos(obj.observer.direction().multiply(obj.worldView), normal) <= 0) return@forEach
+            val normal = triangle.normalIn(obj)
+            if (cos(
+                    observerPosition.minus(obj.viewVertices.acquire(triangle.third.vIndex)),
+                    normal
+                ) <= 0
+            ) return@forEach
 
-            val lightedColor =
-                Lambert(Vertex(observerPosition, 1), 0.3)
-                    .render(obj, face)
+            val lightedColor = lambert.render(obj, Vertex(observerPosition, 1), triangle, 0.3)
 
             drawTriangle(
                 image,
-                obj.vertices.acquire(face.first.vIndex),
-                obj.vertices.acquire(face.second.vIndex),
-                obj.vertices.acquire(face.third.vIndex),
+                obj.vertices.acquire(triangle.first.vIndex),
+                obj.vertices.acquire(triangle.second.vIndex),
+                obj.vertices.acquire(triangle.third.vIndex),
                 lightedColor
             )
         }

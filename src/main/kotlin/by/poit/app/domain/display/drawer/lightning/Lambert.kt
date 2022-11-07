@@ -2,23 +2,20 @@ package by.poit.app.domain.display.drawer.lightning
 
 import by.poit.app.domain.display.drawer.average
 import by.poit.app.domain.model.obj.Obj
-import by.poit.app.domain.model.obj.Polygon
+import by.poit.app.domain.model.obj.Face
 import by.poit.app.domain.model.obj.Vertex
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.primitive.Vector3.Companion.cos
 import java.awt.Color
 import kotlin.math.round
 
-class Lambert(
-    private val lightning: Vertex,
-    private val ambient: Double = 0.0
-) : Lightning {
+class Lambert : Lightning {
 
-    override fun render(obj: Obj, face: Polygon.Face): Color {
-        val lighting = this.lightning.vector3()
+    override fun render(obj: Obj, lightning: Vertex, triangle: Face.Triangle, ambient: Double): Color {
+        val lighting = lightning.vector3()
         return internalRender(
-            obj, face,
-            if (this.lightning.isPosition())
+            obj, triangle, ambient,
+            if (lightning.isPosition())
                 { vertexNormal -> likePosition(vertexNormal, lighting) }
             else
                 { vertexNormal -> likeDirection(vertexNormal, lighting) }
@@ -37,21 +34,22 @@ class Lambert(
 
     private fun internalRender(
         obj: Obj,
-        face: Polygon.Face,
+        triangle: Face.Triangle,
+        ambient: Double,
         cos: (vertexNormal: Pair<Vector3, Vector3>) -> Double
     ): Color {
         val ambientColor =
-            Triple(face.color.red * ambient, face.color.green * ambient, face.color.blue * ambient)
-        return face.vertexNormalsIn(obj)
+            Triple(triangle.color.red * ambient, triangle.color.green * ambient, triangle.color.blue * ambient)
+        return triangle.vertexNormalsIn(obj)
             .map { vertexNormal ->
                 cos(vertexNormal)
                     .coerceAtLeast(0.0)
                     .let {
                         Color(
-                            round((face.color.red - ambientColor.first) * it + ambientColor.first).toInt(),
-                            round((face.color.green - ambientColor.second) * it + ambientColor.second).toInt(),
-                            round((face.color.blue - ambientColor.third) * it + ambientColor.third).toInt(),
-                            face.color.alpha
+                            round((triangle.color.red - ambientColor.first) * it + ambientColor.first).toInt(),
+                            round((triangle.color.green - ambientColor.second) * it + ambientColor.second).toInt(),
+                            round((triangle.color.blue - ambientColor.third) * it + ambientColor.third).toInt(),
+                            triangle.color.alpha
                         )
                     }
             }
