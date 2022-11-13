@@ -26,7 +26,7 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         }
 
         fun reflect(vector: Vector3, normal: Vector3): Vector3 {
-            return vector.minus(normal.multiply(dot(vector, normal)).multiply(2.0))
+            return vector.minus(normal.multiplied(dot(vector, normal) * 2.0))
         }
     }
 
@@ -34,7 +34,7 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         return Vector3(x, y, z)
     }
 
-    fun multiply(matrix: Matrix): Vector3 {
+    fun multiplied(matrix: Matrix): Vector3 {
         return Vector3(
             matrix.values[0].sumOf { it * x },
             matrix.values[1].sumOf { it * y },
@@ -42,8 +42,15 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         )
     }
 
-    fun multiply(value: Double): Vector3 {
+    fun multiplied(value: Double): Vector3 {
         return Vector3(x * value, y * value, z * value)
+    }
+
+    fun multiply(value: Double): Vector3 {
+        x *= value
+        y *= value
+        z *= value
+        return this
     }
 
     fun add(on: Vector3) {

@@ -1,9 +1,8 @@
 package by.poit.app.domain.display.drawer.obj
 
 import by.poit.app.domain.display.Image
-import by.poit.app.domain.display.drawer.shader.phong.PhongShader
 import by.poit.app.domain.display.drawer.shader.Shader
-import by.poit.app.domain.display.drawer.shader.vertex.VertexShader
+import by.poit.app.domain.display.drawer.shader.phong.PhongShader
 import by.poit.app.domain.model.obj.Obj
 import by.poit.app.viewer.settings.ObjDrawerSettings
 
@@ -21,8 +20,8 @@ class ObjDrawer {
         obj.kS = settings.mirrorLightCoefficient
         obj.shininess = settings.shininess
 
-        obj.source.faces.parallelStream().forEach { polygon ->
-            shader.draw(image, obj, polygon)
+        obj.source.faces.parallelStream().forEach { face ->
+            shader.draw(image, obj, face)
         }
     }
 }

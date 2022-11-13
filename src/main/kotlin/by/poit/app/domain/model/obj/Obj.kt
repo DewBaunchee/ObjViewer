@@ -24,7 +24,8 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
     lateinit var worldView: Matrix private set
     lateinit var full: Matrix private set
     lateinit var viewVertices: List<Vector3> private set
-    lateinit var viewNormals: List<Vector3> private set
+    lateinit var worldVertices: List<Vector3> private set
+    lateinit var worldNormals: List<Vector3> private set
     lateinit var vertices: List<Vector3> private set
 
     init {
@@ -43,8 +44,9 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
         worldView = view.multiply(world)
         full = this.viewport.multiply(projection).multiply(worldView)
 
+        worldVertices = source.vertices.mapToVector3(world)
         viewVertices = source.vertices.mapToVector3(worldView)
-        viewNormals = source.normals.mapNormalized(worldView.inverted().transposed())
+        worldNormals = source.normals.mapNormalized(world.inverted().transposed())
         vertices = source.vertices.mapToVector3(full)
     }
 
@@ -72,9 +74,9 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
         fun move(on: Vector3) {
             translation.add(
                 on
-                    .multiply(xRotation(rotation.x))
-                    .multiply(yRotation(rotation.y))
-                    .multiply(zRotation(rotation.z))
+                    .multiplied(xRotation(rotation.x))
+                    .multiplied(yRotation(rotation.y))
+                    .multiplied(zRotation(rotation.z))
             )
         }
 

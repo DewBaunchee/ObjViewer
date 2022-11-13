@@ -16,22 +16,56 @@ class Face(val components: List<Component>, val color: Color = Color.BLUE) {
         )
     }
 
-    class Component(val vIndex: Int, val vtIndex: Int, val vnIndex: Int)
+    class Component(val vIndex: Int, val vtIndex: Int, val vnIndex: Int) {
+
+        fun viewVertexIn(obj: Obj): Vector3 {
+            return obj.viewVertices.acquire(vIndex)
+        }
+
+        fun worldVertexIn(obj: Obj): Vector3 {
+            return obj.worldVertices.acquire(vIndex)
+        }
+
+        fun viewNormalIn(obj: Obj): Vector3? {
+//            return obj.worldNormals.acquireOrNull(vnIndex)
+            TODO()
+        }
+
+        fun worldNormalIn(obj: Obj): Vector3? {
+            return null
+        }
+    }
 
     class Triangle(val first: Component, val second: Component, val third: Component, val color: Color) {
 
         fun vertexNormalsIn(obj: Obj): List<Pair<Vector3, Vector3>> {
-            val normal = normalIn(obj)
+            val normal = viewNormalIn(obj)
             return listOf(first, second, third).map {
-                obj.viewVertices.acquire(it.vIndex) to (obj.viewNormals.acquireOrNull(it.vnIndex) ?: normal)
+                it.viewVertexIn(obj) to (it.worldNormalIn(obj) ?: normal)
             }
+        }
+
+        fun viewNormalIn(obj: Obj): Vector3 {
+            return Vector3.normal(
+                first.viewVertexIn(obj),
+                second.viewVertexIn(obj),
+                third.viewVertexIn(obj),
+            )
+        }
+
+        fun worldNormalIn(obj: Obj): Vector3 {
+            return Vector3.normal(
+                first.worldVertexIn(obj),
+                second.worldVertexIn(obj),
+                third.worldVertexIn(obj),
+            )
         }
 
         fun normalIn(obj: Obj): Vector3 {
             return Vector3.normal(
-                obj.viewVertices.acquire(first.vIndex),
-                obj.viewVertices.acquire(second.vIndex),
-                obj.viewVertices.acquire(third.vIndex)
+                obj.vertices.acquire(first.vIndex),
+                obj.vertices.acquire(second.vIndex),
+                obj.vertices.acquire(third.vIndex)
             )
         }
     }

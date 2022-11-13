@@ -75,7 +75,7 @@ class Viewer : Canvas(), Runnable {
                 } ||
                 on(Key.NUM3) { obj = ObjSuite.building.toObj("Building", observer) } ||
                 on(Key.NUM4) { obj = ObjSuite.ar15.toObj("AR 15", observer) }
-                on(Key.NUM5) { obj = ObjSuite.icosphere.toObj("AR 15", observer) }
+                on(Key.NUM5) { obj = ObjSuite.icosphere.toObj("Icosphere", observer) }
             on(Key.NUM0) { obj = ObjSuite.triangle.toObj("Triangle", observer) }
 
             doMovement(delta)

@@ -29,7 +29,7 @@ class Observer {
 
     val fov = PI / 4
     val zNear = 1.0
-    val zFar = 1000.0
+    val zFar = 2000.0
 
     fun view(): Matrix {
         return translation(position)
@@ -41,9 +41,9 @@ class Observer {
     fun move(on: Vector3) {
         position.add(
             on
-                .multiply(xRotation(rotation.x))
-                .multiply(yRotation(rotation.y))
-                .multiply(zRotation(rotation.z))
+                .multiplied(xRotation(rotation.x))
+                .multiplied(yRotation(rotation.y))
+                .multiplied(zRotation(rotation.z))
         )
     }
 

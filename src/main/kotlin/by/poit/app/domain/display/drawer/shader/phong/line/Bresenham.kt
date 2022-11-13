@@ -2,7 +2,6 @@ package by.poit.app.domain.display.drawer.shader.phong.line
 
 import by.poit.app.domain.display.Image
 import by.poit.app.domain.display.drawer.shader.phong.pixel.Pixel
-import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.structure.PixelLine
 import java.awt.Color
 import kotlin.math.abs
@@ -18,7 +17,7 @@ class Bresenham {
     ) {
         val line = image.intersection(PixelLine(from, to)) ?: return
 
-        val delta = line.from.delta(line.to)
+        val delta = line.pixelDelta()
         val sameX = abs(delta.screen.x) < abs(delta.screen.y)
 
         val toX = round(line.to.screen.x)
@@ -36,10 +35,8 @@ class Bresenham {
         val sy = if (line.from.screen.y < line.to.screen.y) 1 else -1
         val sz = if (line.from.screen.z < line.to.screen.z) 1 else -1
 
-        val deltaNormal: Vector3 = if (sameX) {
-            delta.normal.multiply(1.0 / dy)
-        } else {
-            delta.normal.multiply(1.0 / dx)
+        (if (sameX) dy else dx).let { d ->
+            delta.multiply(1.0 / d)
         }
 
         var error = dx - dy
@@ -53,7 +50,7 @@ class Bresenham {
                 error -= dy
 
                 if (!sameX) {
-                    current.normal.add(deltaNormal)
+                    current.add(delta)
                 }
             }
 
@@ -63,7 +60,7 @@ class Bresenham {
                 error += dx
 
                 if (sameX) {
-                    current.normal.add(deltaNormal)
+                    current.add(delta)
                 }
             }
         }

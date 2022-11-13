@@ -76,7 +76,7 @@ open class Matrix(val values: Array<DoubleArray>) {
 
     fun transposed(): Matrix {
         val temp = Array(cols) { DoubleArray(rows) }
-        for (i in values.indices) for (j in 0 until cols) temp[j][i] = values[i][j]
+        for (i in 0 until rows) for (j in 0 until cols) temp[j][i] = values[i][j]
         return Matrix(temp)
     }
 }
