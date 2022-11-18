@@ -35,15 +35,6 @@ class Vertex(val x: Double, val y: Double, val z: Double, val w: Double) {
         return Vertex(result[0], result[1], result[2], result[3])
     }
 
-//    fun multiply(matrix: Matrix): Vertex {
-//        return Vertex(
-//            matrix.values[0].sumOf { it * x },
-//            matrix.values[1].sumOf { it * y },
-//            matrix.values[2].sumOf { it * z },
-//            matrix.values[3].sumOf { it * w },
-//        )
-//    }
-
     override fun toString(): String {
         return String.format("%7f %7f %7f %7f", x, y, z, w)
     }

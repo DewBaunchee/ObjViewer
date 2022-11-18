@@ -3,40 +3,50 @@ package by.poit.app.domain.model.obj
 import by.poit.app.domain.display.drawer.acquire
 import by.poit.app.domain.display.drawer.acquireOrNull
 import by.poit.app.domain.model.primitive.Vector3
-import java.awt.Color
+import by.poit.app.domain.model.structure.Matrix
 
-class Face(val components: List<Component>, val color: Color = Color.BLUE) {
+class Face(
+    val components: List<Component>,
+    val materialName: String,
+) {
 
     val triangles = (1 until components.size - 1).map {
         Triangle(
             components[0],
             components[it],
             components[it + 1],
-            color
+            this
         )
     }
 
-    class Component(val vIndex: Int, val vtIndex: Int, val vnIndex: Int) {
+    class Component(val vIndex: Int, private val vtIndex: Int, private val vnIndex: Int) {
 
         fun viewVertexIn(obj: Obj): Vector3 {
             return obj.viewVertices.acquire(vIndex)
+        }
+
+        fun vertexIn(obj: Obj): Vector3 {
+            return obj.vertices.acquire(vIndex)
         }
 
         fun worldVertexIn(obj: Obj): Vector3 {
             return obj.worldVertices.acquire(vIndex)
         }
 
-        fun viewNormalIn(obj: Obj): Vector3? {
-//            return obj.worldNormals.acquireOrNull(vnIndex)
-            TODO()
+        fun worldNormalIn(obj: Obj): Vector3? {
+            return obj.worldNormals.acquireOrNull(vnIndex)
         }
 
-        fun worldNormalIn(obj: Obj): Vector3? {
-            return null
+        fun textureCoordinateIn(obj: Obj): Vector3? {
+            return obj.textureCoordinates.acquireOrNull(vtIndex)
         }
     }
 
-    class Triangle(val first: Component, val second: Component, val third: Component, val color: Color) {
+    class Triangle(val first: Component, val second: Component, val third: Component, val face: Face) {
+
+        var tbn: Matrix? = null
+
+        val material get() = face.materialName
 
         fun vertexNormalsIn(obj: Obj): List<Pair<Vector3, Vector3>> {
             val normal = viewNormalIn(obj)
@@ -67,6 +77,10 @@ class Face(val components: List<Component>, val color: Color = Color.BLUE) {
                 obj.vertices.acquire(second.vIndex),
                 obj.vertices.acquire(third.vIndex)
             )
+        }
+
+        fun updateTbn(obj: Obj) {
+            tbn = obj.source.normalMap?.tbn(obj, this)
         }
     }
 }

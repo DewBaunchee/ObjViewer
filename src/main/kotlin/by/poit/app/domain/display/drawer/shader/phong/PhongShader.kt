@@ -1,8 +1,7 @@
 package by.poit.app.domain.display.drawer.shader.phong
 
 import by.poit.app.domain.display.Image
-import by.poit.app.domain.display.drawer.acquire
-import by.poit.app.domain.display.drawer.lightning.Phong
+import by.poit.app.domain.display.drawer.lightning.Colorizer
 import by.poit.app.domain.display.drawer.shader.Shader
 import by.poit.app.domain.display.drawer.shader.phong.line.Bresenham
 import by.poit.app.domain.display.drawer.shader.phong.pixel.Pixel
@@ -16,32 +15,30 @@ import kotlin.math.floor
 
 class PhongShader : Shader {
 
-    private val phong = Phong()
+    lateinit var colorizer: Colorizer
 
     private val bresenham = Bresenham()
 
     override fun draw(image: Image, obj: Obj, face: Face) {
         face.triangles.forEach { triangle ->
-            val observerPosition = obj.observer.position
             val faceNormal = triangle.worldNormalIn(obj)
             if (triangle.normalIn(obj).z > 0) return@forEach
 
+            triangle.updateTbn(obj)
+
             val color: (Pixel) -> Color = color@{ pixel ->
-                phong.color(
+                colorizer.render(
+                    image.context,
                     obj,
                     pixel,
-                    triangle.color,
-                    observerPosition,
-                    Color.RED,
-                    observerPosition
                 )
             }
 
-            val list = mutableListOf(
-                getPixel(obj, triangle.first, triangle.first.worldNormalIn(obj) ?: faceNormal),
-                getPixel(obj, triangle.second, triangle.second.worldNormalIn(obj) ?: faceNormal),
-                getPixel(obj, triangle.third, triangle.third.worldNormalIn(obj) ?: faceNormal),
-            ).sortedBy { it.screen.y }
+            val list = listOf(
+                triangle.first, triangle.second, triangle.third
+            ).map {
+                getPixel(obj, face, triangle, it, it.worldNormalIn(obj) ?: faceNormal)
+            }.sortedBy { it.screen.y }
 
             val top = list[2]
             val middle = list[1]
@@ -81,12 +78,20 @@ class PhongShader : Shader {
         }
     }
 
-    private fun getPixel(obj: Obj, faceComponent: Face.Component, faceNormal: Vector3): Pixel {
+    private fun getPixel(
+        obj: Obj,
+        face: Face,
+        triangle: Face.Triangle,
+        faceComponent: Face.Component,
+        faceNormal: Vector3
+    ): Pixel {
         return Pixel(
-            obj.vertices.acquire(faceComponent.vIndex),
-            obj.worldVertices.acquire(faceComponent.vIndex),
-            obj.viewVertices.acquire(faceComponent.vIndex),
-            faceComponent.worldNormalIn(obj) ?: faceNormal
+            faceComponent.vertexIn(obj),
+            faceComponent.worldVertexIn(obj),
+            faceComponent.textureCoordinateIn(obj) ?: Vector3(0),
+            faceComponent.worldNormalIn(obj) ?: faceNormal,
+            face,
+            triangle
         )
     }
 }

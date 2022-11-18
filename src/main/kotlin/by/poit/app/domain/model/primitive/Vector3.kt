@@ -34,11 +34,19 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         return Vector3(x, y, z)
     }
 
-    fun multiplied(matrix: Matrix): Vector3 {
+    fun transformed(matrix: Matrix): Vector3 {
         return Vector3(
-            matrix.values[0].sumOf { it * x },
-            matrix.values[1].sumOf { it * y },
-            matrix.values[2].sumOf { it * z },
+            x * matrix.values[0][0] + y * matrix.values[0][1] + z * matrix.values[0][2] + matrix.values[0][3],
+            x * matrix.values[1][0] + y * matrix.values[1][1] + z * matrix.values[1][2] + matrix.values[1][3],
+            x * matrix.values[2][0] + y * matrix.values[2][1] + z * matrix.values[2][2] + matrix.values[2][3]
+        )
+    }
+
+    fun transformedNormal(matrix: Matrix): Vector3 {
+        return Vector3(
+            x * matrix.values[0][0] + y * matrix.values[0][1] + z * matrix.values[0][2],
+            x * matrix.values[1][0] + y * matrix.values[1][1] + z * matrix.values[1][2],
+            x * matrix.values[2][0] + y * matrix.values[2][1] + z * matrix.values[2][2]
         )
     }
 
@@ -53,10 +61,11 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         return this
     }
 
-    fun add(on: Vector3) {
+    fun add(on: Vector3): Vector3 {
         x += on.x
         y += on.y
         z += on.z
+        return this
     }
 
     fun minus(vector: Vector3): Vector3 {
@@ -64,6 +73,14 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
             x - vector.x,
             y - vector.y,
             z - vector.z
+        )
+    }
+
+    fun minus(value: Double): Vector3 {
+        return Vector3(
+            x - value,
+            y - value,
+            z - value
         )
     }
 
@@ -87,6 +104,12 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
         return sqrt(x.pow(2) + y.pow(2) + z.pow(2))
     }
 
+    fun set(vector: Vector3) {
+        x = vector.x
+        y = vector.y
+        z = vector.z
+    }
+
     fun normalized(): Vector3 {
         val module = module()
         if (module == 0.0 || module == 1.0) return this
@@ -103,5 +126,9 @@ class Vector3(var x: Double, var y: Double, var z: Double) {
 
     fun toString(fixed: Int): String {
         return String.format("%${fixed}f %${fixed}f %${fixed}f", x, y, z)
+    }
+
+    fun toList(): List<Double> {
+        return listOf(x, y, z)
     }
 }

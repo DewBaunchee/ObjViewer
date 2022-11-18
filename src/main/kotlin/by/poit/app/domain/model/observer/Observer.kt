@@ -41,9 +41,9 @@ class Observer {
     fun move(on: Vector3) {
         position.add(
             on
-                .multiplied(xRotation(rotation.x))
-                .multiplied(yRotation(rotation.y))
-                .multiplied(zRotation(rotation.z))
+                .transformed(xRotation(rotation.x))
+                .transformed(yRotation(rotation.y))
+                .transformed(zRotation(rotation.z))
         )
     }
 

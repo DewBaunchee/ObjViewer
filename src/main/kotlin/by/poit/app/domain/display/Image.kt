@@ -1,5 +1,6 @@
 package by.poit.app.domain.display
 
+import by.poit.app.domain.display.drawer.context.DisplayContext
 import by.poit.app.domain.display.drawer.shader.phong.pixel.Pixel
 import by.poit.app.domain.model.structure.PixelLine
 import by.poit.app.domain.model.structure.Rectangle
@@ -9,7 +10,7 @@ import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_INT_RGB
 import kotlin.math.roundToInt
 
-class Image(val width: Int, val height: Int) {
+class Image(val context: DisplayContext, val width: Int, val height: Int) {
 
     val zMap = Array(width) { DoubleArray(height) { Double.MAX_VALUE } }
     val drawable = BufferedImage(width, height, TYPE_INT_RGB)

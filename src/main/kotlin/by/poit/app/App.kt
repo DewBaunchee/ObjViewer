@@ -3,6 +3,7 @@ package by.poit.app
 import by.poit.app.viewer.Viewer
 import java.awt.BorderLayout
 import java.awt.Dimension
+import javax.swing.JCheckBox
 
 import javax.swing.JFrame
 import javax.swing.JLabel
@@ -30,6 +31,9 @@ fun main() {
 
 fun createPanel(viewer: Viewer): JPanel {
     return JPanel().apply {
+        createCheckbox(this, "With textures") {
+            viewer.objDrawer.settings.withTextures = it
+        }
         createSlider(this, "Ambient", 0, 100) {
             viewer.objDrawer.settings.ambient = it / 100.0
         }
@@ -39,6 +43,17 @@ fun createPanel(viewer: Viewer): JPanel {
         createSlider(this, "Shininess", 0, 128) {
             viewer.objDrawer.settings.shininess = it / 1.0
         }
+    }
+}
+
+fun createCheckbox(panel: JPanel, label: String, setter: (Boolean) -> Unit) {
+    panel.apply {
+        val checkbox = JCheckBox(label)
+        setter(checkbox.isSelected)
+        checkbox.addChangeListener {
+            setter(checkbox.isSelected)
+        }
+        add(checkbox)
     }
 }
 

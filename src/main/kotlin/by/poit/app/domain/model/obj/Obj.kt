@@ -1,59 +1,72 @@
 package by.poit.app.domain.model.obj
 
-import by.poit.app.domain.display.drawer.mapNormalized
+import by.poit.app.domain.display.drawer.context.DisplayContext
+import by.poit.app.domain.display.drawer.mapNormals
 import by.poit.app.domain.display.drawer.mapToVector3
 import by.poit.app.domain.display.transformation.*
-import by.poit.app.domain.model.observer.Observer
+import by.poit.app.domain.model.obj.material.Materials
+import by.poit.app.domain.model.obj.texture.NormalMap
+import by.poit.app.domain.model.obj.texture.Texture
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.structure.Matrix
 
-class Obj(val name: String, val observer: Observer, val source: Source) {
+class Obj(private val name: String, val source: Source) {
 
     var kA = 0.3
     var kD = 1.0
     var kS = 0.0
+    var kE = 0.5
     var shininess = 0.0
 
-    lateinit var translation: Matrix private set
-    lateinit var scale: Matrix private set
-    lateinit var fullRotation: Matrix private set
-    lateinit var view: Matrix private set
-    lateinit var projection: Matrix private set
-    lateinit var viewport: Matrix private set
+    private lateinit var translation: Matrix
+    private lateinit var scale: Matrix
+    private lateinit var fullRotation: Matrix
+    private lateinit var view: Matrix
+    private lateinit var projection: Matrix
+    private lateinit var viewport: Matrix
     lateinit var world: Matrix private set
     lateinit var worldView: Matrix private set
-    lateinit var full: Matrix private set
+    private lateinit var full: Matrix
     lateinit var viewVertices: List<Vector3> private set
     lateinit var worldVertices: List<Vector3> private set
     lateinit var worldNormals: List<Vector3> private set
     lateinit var vertices: List<Vector3> private set
+    lateinit var textureCoordinates: List<Vector3> private set
 
-    init {
-        update()
-    }
-
-    fun update(width: Int = 0, height: Int = 0) {
+    fun update(context: DisplayContext, width: Int = 0, height: Int = 0) {
         translation = translation(source.translation)
         scale = scale(source.scale)
         fullRotation = fullRotation(source.rotation)
-        view = observer.view()
-        projection = fovProjection(width.toDouble() / height, observer.fov, observer.zNear, observer.zFar)
+        view = context.observer.view()
+        projection = fovProjection(
+            width.toDouble() / height,
+            context.observer.fov,
+            context.observer.zNear,
+            context.observer.zFar
+        )
         viewport = viewport(width.toDouble(), height.toDouble())
 
-        world = this.scale.multiply(this.fullRotation).multiply(this.translation)
+        world = this.fullRotation.multiply(this.scale).multiply(this.translation)
         worldView = view.multiply(world)
         full = this.viewport.multiply(projection).multiply(worldView)
 
         worldVertices = source.vertices.mapToVector3(world)
         viewVertices = source.vertices.mapToVector3(worldView)
-        worldNormals = source.normals.mapNormalized(world.inverted().transposed())
+        worldNormals = source.normals.mapNormals(world)
         vertices = source.vertices.mapToVector3(full)
+        textureCoordinates = source.textureCoordinates
     }
 
     data class Source(
         val vertices: List<Vertex>,
         val faces: List<Face>,
-        val normals: List<Vector3>
+        val normals: List<Vector3>,
+        val textureCoordinates: List<Vector3>,
+        val materials: Materials,
+        val normalMap: NormalMap? = null,
+        val diffuseTexture: Texture? = null,
+        val specularTexture: Texture? = null,
+        val emissionTexture: Texture? = null,
     ) {
 
         companion object {
@@ -74,9 +87,9 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
         fun move(on: Vector3) {
             translation.add(
                 on
-                    .multiplied(xRotation(rotation.x))
-                    .multiplied(yRotation(rotation.y))
-                    .multiplied(zRotation(rotation.z))
+                    .transformed(xRotation(rotation.x))
+                    .transformed(yRotation(rotation.y))
+                    .transformed(zRotation(rotation.z))
             )
         }
 
@@ -94,12 +107,16 @@ class Obj(val name: String, val observer: Observer, val source: Source) {
             rotation = rotationDefault.copy()
         }
 
-        fun toObj(name: String, observer: Observer): Obj {
-            return Obj(name, observer, this)
+        fun toObj(name: String): Obj {
+            return Obj(name, this)
         }
     }
 
     override fun toString(): String {
         return "Object $name [vertices=${source.vertices.size}, polygons=${source.faces.size}] - ${source.translation}"
+    }
+
+    fun hasTextures(): Boolean {
+        return source.diffuseTexture != null
     }
 }

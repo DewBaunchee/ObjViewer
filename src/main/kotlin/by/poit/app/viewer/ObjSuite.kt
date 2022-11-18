@@ -8,11 +8,14 @@ class ObjSuite {
     companion object {
 
         private val parser = ObjParser()
-        val ar15 by lazy { parser.parse(File("ar_15.obj")) }
-        val star by lazy { parser.parse(File("star.obj")) }
-        val building by lazy { parser.parse(File("building.obj")) }
-        val cube by lazy { parser.parse(File("cube.obj")) }
-        val triangle by lazy { parser.parse(File("triangle.obj")) }
-        val icosphere by lazy { parser.parse(File("icosphere.obj")) }
+        val ar15 by lazy { parser.parse(File("models/ar15/ar_15.obj")) }
+        val star by lazy { parser.parse(File("models/star/star.obj")) }
+        val building by lazy { parser.parse(File("models/building.obj")) }
+        val cube by lazy { parser.parse(File("models/cube.obj")) }
+        val triangle by lazy { parser.parse(File("models/triangle/triangle.obj")) }
+        val icosphere by lazy { parser.parse(File("models/icosphere.obj")) }
+        val wheel by lazy { parser.parse(File("models/wheel/wheel.obj")) }
+        val rubix by lazy { parser.parse(File("models/rubix/rubix.obj")) }
+        val lamp by lazy { parser.parse(File("models/lamp/lamp.obj")) }
     }
 }

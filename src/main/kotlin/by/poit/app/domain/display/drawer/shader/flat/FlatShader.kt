@@ -19,7 +19,7 @@ class FlatShader : SimpleShader() {
 
     override fun draw(image: Image, obj: Obj, face: Face) {
         face.triangles.forEach { triangle ->
-            val observerPosition = obj.observer.position.multiplied(obj.worldView)
+            val observerPosition = image.context.observer.position.transformed(obj.worldView)
             val normal = triangle.viewNormalIn(obj)
             if (cos(
                     observerPosition.minus(obj.viewVertices.acquire(triangle.third.vIndex)),

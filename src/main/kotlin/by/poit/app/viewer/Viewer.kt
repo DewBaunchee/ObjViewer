@@ -1,9 +1,9 @@
 package by.poit.app.viewer
 
 import by.poit.app.domain.display.Image
+import by.poit.app.domain.display.drawer.context.DisplayContext
 import by.poit.app.domain.display.drawer.obj.ObjDrawer
 import by.poit.app.domain.display.printer.DebugPrinter
-import by.poit.app.domain.model.observer.Observer
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.viewer.input.InputAdapter
 import by.poit.app.viewer.input.Key
@@ -13,13 +13,14 @@ import java.awt.Color
 
 class Viewer : Canvas(), Runnable {
 
-    private val observer = Observer()
-
     private val inputAdapter = InputAdapter()
     private val debugPrinter = DebugPrinter()
+    private val context = DisplayContext()
     val objDrawer = ObjDrawer()
 
-    private var obj = ObjSuite.cube.toObj("Cube (Default)", observer)
+    private val observer get() = context.observer
+
+    private var obj = ObjSuite.cube.toObj("Cube (Default)")
 
     private var running = false
 
@@ -47,7 +48,7 @@ class Viewer : Canvas(), Runnable {
 
         inputAdapter.subscribe(Key.F1) { debugPrinter.generalEnabled = !debugPrinter.generalEnabled }
         inputAdapter.subscribe(Key.F2) { debugPrinter.verticesEnabled = !debugPrinter.verticesEnabled }
-        inputAdapter.subscribe(Key.MINUS) { observer.decreaseSpeed() }
+        inputAdapter.subscribe(Key.MINUS) { context.observer.decreaseSpeed() }
         inputAdapter.subscribe(Key.PLUS) { observer.increaseSpeed() }
     }
 
@@ -57,7 +58,7 @@ class Viewer : Canvas(), Runnable {
         graphics.color = Color.black
         graphics.fillRect(0, 0, width, height)
 
-        val image = Image(width, height)
+        val image = Image(context, width, height)
         objDrawer.draw(image, obj)
         graphics.drawImage(image.drawable, 0, 0, null)
         debugPrinter.print(graphics, observer, obj)
@@ -68,15 +69,24 @@ class Viewer : Canvas(), Runnable {
 
     private fun update(delta: Long) {
         inputAdapter.handle {
-            on(Key.NUM1) { obj = ObjSuite.cube.toObj("Cube", observer) } ||
+            on(Key.NUM1) { obj = ObjSuite.cube.toObj("Cube") } ||
                 on(Key.NUM2) {
-                    obj = ObjSuite.star.toObj("Star", observer)
+                    obj = ObjSuite.star.toObj("Star")
                     observer.position = Vector3(0, 0, -1000)
                 } ||
-                on(Key.NUM3) { obj = ObjSuite.building.toObj("Building", observer) } ||
-                on(Key.NUM4) { obj = ObjSuite.ar15.toObj("AR 15", observer) }
-                on(Key.NUM5) { obj = ObjSuite.icosphere.toObj("Icosphere", observer) }
-            on(Key.NUM0) { obj = ObjSuite.triangle.toObj("Triangle", observer) }
+                on(Key.NUM3) { obj = ObjSuite.building.toObj("Building") } ||
+                on(Key.NUM4) {
+                    obj = ObjSuite.ar15.toObj("AR 15")
+                    observer.position = Vector3(0, 0, -400)
+                } ||
+                on(Key.NUM5) { obj = ObjSuite.icosphere.toObj("Icosphere") } ||
+                on(Key.NUM6) {
+                    obj = ObjSuite.wheel.toObj("Wheel")
+                    observer.position = Vector3(0, 0, -300)
+                } ||
+                on(Key.NUM7) { obj = ObjSuite.rubix.toObj("Rubix") } ||
+                on(Key.NUM8) { obj = ObjSuite.lamp.toObj("Lamp") } ||
+                on(Key.NUM0) { obj = ObjSuite.triangle.toObj("Triangle") }
 
             doMovement(delta)
 

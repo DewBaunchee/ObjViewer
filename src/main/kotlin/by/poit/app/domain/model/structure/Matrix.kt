@@ -1,5 +1,7 @@
 package by.poit.app.domain.model.structure
 
+import by.poit.app.domain.model.primitive.Vector3
+
 
 open class Matrix(val values: Array<DoubleArray>) {
 
@@ -7,6 +9,14 @@ open class Matrix(val values: Array<DoubleArray>) {
     val cols get() = values[0].size
 
     constructor(rows: Int, cols: Int) : this(Array(rows) { DoubleArray(cols) { 0.0 } })
+    constructor(first: Vector3, second: Vector3, third: Vector3) : this(
+        arrayOf(
+            doubleArrayOf(first.x, first.y, first.z, 0.0),
+            doubleArrayOf(second.x, second.y, second.z, 0.0),
+            doubleArrayOf(third.x, third.y, third.z, 0.0),
+            doubleArrayOf(0.0, 0.0, 0.0, 0.0),
+        )
+    )
 
     fun multiply(matrix: Matrix): Matrix {
         return Matrix(

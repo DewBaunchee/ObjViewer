@@ -1,17 +1,17 @@
 package by.poit.app.domain.display.drawer.lightning
 
 import by.poit.app.domain.display.drawer.average
-import by.poit.app.domain.model.obj.Obj
 import by.poit.app.domain.model.obj.Face
+import by.poit.app.domain.model.obj.Obj
 import by.poit.app.domain.model.obj.Vertex
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.primitive.Vector3.Companion.cos
 import java.awt.Color
 import kotlin.math.round
 
-class Lambert : Lightning {
+class Lambert {
 
-    override fun render(obj: Obj, lightning: Vertex, triangle: Face.Triangle, ambient: Double): Color {
+    fun render(obj: Obj, lightning: Vertex, triangle: Face.Triangle, ambient: Double): Color {
         val lighting = lightning.vector3()
         return internalRender(
             obj, triangle, ambient,
