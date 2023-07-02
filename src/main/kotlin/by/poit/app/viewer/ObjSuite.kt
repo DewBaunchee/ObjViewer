@@ -1,6 +1,9 @@
 package by.poit.app.viewer
 
+import by.poit.app.domain.model.obj.Obj
 import by.poit.app.domain.model.obj.ObjParser
+import by.poit.app.domain.model.obj.material.Material
+import by.poit.app.domain.model.obj.material.Materials
 import java.io.File
 
 class ObjSuite {
@@ -17,5 +20,18 @@ class ObjSuite {
         val wheel by lazy { parser.parse(File("models/wheel/wheel.obj")) }
         val rubix by lazy { parser.parse(File("models/rubix/rubix.obj")) }
         val lamp by lazy { parser.parse(File("models/lamp/lamp.obj")) }
+        val meat by lazy { parser.parse(File("models/meat/meat.obj")) }
+        val seeds by lazy { parser.parse(File("models/seeds/seeds.obj")) }
+        val xenos by lazy { parser.parse(File("models/xenos/xenos.obj")) }
+
+        val empty by lazy {
+            Obj.Source(
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                Materials(emptyList(), Material.defaultMaterial)
+            )
+        }
     }
 }

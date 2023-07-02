@@ -38,12 +38,11 @@ fun List<Vector3>.mapNormals(transformation: Matrix): List<Vector3> {
         .toList()
 }
 
-fun List<Color>.average(): Color {
-    return Color(
-        round(this.sumOf { it.red } / this.size.toDouble()).toInt(),
-        round(this.sumOf { it.green } / this.size.toDouble()).toInt(),
-        round(this.sumOf { it.blue } / this.size.toDouble()).toInt(),
-        round(this.sumOf { it.alpha } / this.size.toDouble()).toInt(),
+fun List<Vector3>.average(): Vector3 {
+    return Vector3(
+        round(this.sumOf { it.x } / this.size.toDouble()).toInt(),
+        round(this.sumOf { it.y } / this.size.toDouble()).toInt(),
+        round(this.sumOf { it.z } / this.size.toDouble()).toInt(),
     )
 }
 

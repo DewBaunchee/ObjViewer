@@ -1,5 +1,7 @@
 package by.poit.app.domain.model.obj
 
+import by.poit.app.domain.model.obj.material.Material
+import by.poit.app.domain.model.obj.material.Material.Companion.defaultMaterial
 import by.poit.app.domain.model.obj.material.MaterialLibParser
 import by.poit.app.domain.model.obj.material.Materials
 import by.poit.app.domain.model.obj.texture.NormalMap
@@ -18,7 +20,7 @@ class ObjParser {
         val normals = mutableListOf<Vector3>()
         val textureCoordinates = mutableListOf<Vector3>()
 
-        var materials = Materials(emptyList())
+        val materials = Materials(emptyList(), defaultMaterial)
 
         var currentMaterial = ""
 
@@ -32,7 +34,7 @@ class ObjParser {
                 "mtllib" -> {
                     File(file.parentFile.toPath().toAbsolutePath().toString() + "/" + parts[1]).let {
                         if (it.exists())
-                            materials = materials.merged(materialLibParser.parse(it))
+                            materials.mergeWith(materialLibParser.parse(it))
                     }
                 }
 

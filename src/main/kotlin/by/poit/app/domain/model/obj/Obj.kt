@@ -12,19 +12,13 @@ import by.poit.app.domain.model.structure.Matrix
 
 class Obj(private val name: String, val source: Source) {
 
-    var kA = 0.3
-    var kD = 1.0
-    var kS = 0.0
-    var kE = 0.5
-    var shininess = 0.0
-
     private lateinit var translation: Matrix
     private lateinit var scale: Matrix
     private lateinit var fullRotation: Matrix
     private lateinit var view: Matrix
     private lateinit var projection: Matrix
     private lateinit var viewport: Matrix
-    lateinit var world: Matrix private set
+    private lateinit var world: Matrix
     lateinit var worldView: Matrix private set
     private lateinit var full: Matrix
     lateinit var viewVertices: List<Vector3> private set
@@ -84,15 +78,6 @@ class Obj(private val name: String, val source: Source) {
         var rotation = rotationDefault.copy()
             private set
 
-        fun move(on: Vector3) {
-            translation.add(
-                on
-                    .transformed(xRotation(rotation.x))
-                    .transformed(yRotation(rotation.y))
-                    .transformed(zRotation(rotation.z))
-            )
-        }
-
         fun scale(on: Vector3) {
             scale.add(on)
         }
@@ -117,6 +102,6 @@ class Obj(private val name: String, val source: Source) {
     }
 
     fun hasTextures(): Boolean {
-        return source.diffuseTexture != null
+        return true
     }
 }

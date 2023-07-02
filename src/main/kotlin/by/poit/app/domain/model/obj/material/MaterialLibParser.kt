@@ -1,5 +1,8 @@
 package by.poit.app.domain.model.obj.material
 
+import by.poit.app.domain.model.obj.material.Material.Companion.defaultMaterial
+import by.poit.app.domain.model.obj.texture.NormalMap
+import by.poit.app.domain.model.obj.texture.Texture
 import by.poit.app.domain.model.primitive.Vector3
 import java.io.File
 
@@ -46,6 +49,34 @@ class MaterialLibParser {
                     currentBuilder?.tr = parts[1].toDouble()
                 }
 
+                "map_Kd" -> {
+                    currentBuilder?.diffuseTexture =
+                        File(file.parentFile.toPath().toAbsolutePath().toString() + "/" + parts[1] + ".png").let {
+                            Texture.from(it)
+                        }
+                }
+
+                "map_Ks" -> {
+                    currentBuilder?.specularTexture =
+                        File(file.parentFile.toPath().toAbsolutePath().toString() + "/" + parts[1] + ".png").let {
+                            Texture.from(it)
+                        }
+                }
+
+                "map_Ke" -> {
+                    currentBuilder?.emissionTexture =
+                        File(file.parentFile.toPath().toAbsolutePath().toString() + "/" + parts[1] + ".png").let {
+                            Texture.from(it)
+                        }
+                }
+
+                "map_bump" -> {
+                    currentBuilder?.normalMap =
+                        File(file.parentFile.toPath().toAbsolutePath().toString() + "/" + parts[1] + ".png").let {
+                            NormalMap.from(it)
+                        }
+                }
+
                 "illum" -> {
                     currentBuilder?.illum = parts[1].toInt()
                 }
@@ -54,7 +85,7 @@ class MaterialLibParser {
 
         currentBuilder?.let { materials.add(it.build()) }
 
-        return Materials(materials)
+        return Materials(materials, defaultMaterial)
     }
 
     private fun parseVector3(parts: List<String>): Vector3 {

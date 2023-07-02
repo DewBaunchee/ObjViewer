@@ -37,7 +37,7 @@ class PhongShader : Shader {
             val list = listOf(
                 triangle.first, triangle.second, triangle.third
             ).map {
-                getPixel(obj, face, triangle, it, it.worldNormalIn(obj) ?: faceNormal)
+                getPixel(obj, triangle, it, it.worldNormalIn(obj) ?: faceNormal)
             }.sortedBy { it.screen.y }
 
             val top = list[2]
@@ -80,7 +80,6 @@ class PhongShader : Shader {
 
     private fun getPixel(
         obj: Obj,
-        face: Face,
         triangle: Face.Triangle,
         faceComponent: Face.Component,
         faceNormal: Vector3
@@ -90,7 +89,6 @@ class PhongShader : Shader {
             faceComponent.worldVertexIn(obj),
             faceComponent.textureCoordinateIn(obj) ?: Vector3(0),
             faceComponent.worldNormalIn(obj) ?: faceNormal,
-            face,
             triangle
         )
     }

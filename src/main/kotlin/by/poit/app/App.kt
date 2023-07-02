@@ -3,12 +3,7 @@ package by.poit.app
 import by.poit.app.viewer.Viewer
 import java.awt.BorderLayout
 import java.awt.Dimension
-import javax.swing.JCheckBox
-
-import javax.swing.JFrame
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JSlider
+import javax.swing.*
 
 const val WIDTH = 400
 const val HEIGHT = 300
@@ -32,16 +27,19 @@ fun main() {
 fun createPanel(viewer: Viewer): JPanel {
     return JPanel().apply {
         createCheckbox(this, "With textures") {
-            viewer.objDrawer.settings.withTextures = it
+            viewer.context.withTextures = it
+        }
+        createCheckbox(this, "Use material") {
+            viewer.context.useMaterial = it
         }
         createSlider(this, "Ambient", 0, 100) {
-            viewer.objDrawer.settings.ambient = it / 100.0
+            viewer.context.ambient = it / 100.0
         }
         createSlider(this, "Mirror", 0, 100) {
-            viewer.objDrawer.settings.mirrorLightCoefficient = it / 100.0
+            viewer.context.mirrorLightCoefficient = it / 100.0
         }
         createSlider(this, "Shininess", 0, 128) {
-            viewer.objDrawer.settings.shininess = it / 1.0
+            viewer.context.shininess = it / 1.0
         }
     }
 }

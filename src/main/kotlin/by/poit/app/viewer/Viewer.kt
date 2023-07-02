@@ -15,7 +15,7 @@ class Viewer : Canvas(), Runnable {
 
     private val inputAdapter = InputAdapter()
     private val debugPrinter = DebugPrinter()
-    private val context = DisplayContext()
+    val context = DisplayContext()
     val objDrawer = ObjDrawer()
 
     private val observer get() = context.observer
@@ -74,18 +74,19 @@ class Viewer : Canvas(), Runnable {
                     obj = ObjSuite.star.toObj("Star")
                     observer.position = Vector3(0, 0, -1000)
                 } ||
-                on(Key.NUM3) { obj = ObjSuite.building.toObj("Building") } ||
+                on(Key.NUM3) { obj = ObjSuite.meat.toObj("Meat") } ||
                 on(Key.NUM4) {
-                    obj = ObjSuite.ar15.toObj("AR 15")
-                    observer.position = Vector3(0, 0, -400)
-                } ||
-                on(Key.NUM5) { obj = ObjSuite.icosphere.toObj("Icosphere") } ||
-                on(Key.NUM6) {
                     obj = ObjSuite.wheel.toObj("Wheel")
                     observer.position = Vector3(0, 0, -300)
                 } ||
+                on(Key.NUM5) {
+                    obj = ObjSuite.xenos.toObj("Xenomorf")
+                    observer.position = Vector3(0, 0, -1000)
+                } ||
+                on(Key.NUM6) { obj = ObjSuite.icosphere.toObj("Icosphere") } ||
                 on(Key.NUM7) { obj = ObjSuite.rubix.toObj("Rubix") } ||
                 on(Key.NUM8) { obj = ObjSuite.lamp.toObj("Lamp") } ||
+                on(Key.NUM9) { obj = ObjSuite.empty.toObj("Nothing") } ||
                 on(Key.NUM0) { obj = ObjSuite.triangle.toObj("Triangle") }
 
             doMovement(delta)

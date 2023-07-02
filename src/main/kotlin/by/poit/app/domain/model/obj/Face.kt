@@ -2,6 +2,7 @@ package by.poit.app.domain.model.obj
 
 import by.poit.app.domain.display.drawer.acquire
 import by.poit.app.domain.display.drawer.acquireOrNull
+import by.poit.app.domain.model.obj.material.Material
 import by.poit.app.domain.model.primitive.Vector3
 import by.poit.app.domain.model.structure.Matrix
 
@@ -81,6 +82,10 @@ class Face(
 
         fun updateTbn(obj: Obj) {
             tbn = obj.source.normalMap?.tbn(obj, this)
+        }
+
+        fun materialIn(obj: Obj): Material {
+            return obj.source.materials.get(material)
         }
     }
 }

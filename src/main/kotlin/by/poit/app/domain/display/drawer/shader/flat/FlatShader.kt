@@ -27,7 +27,7 @@ class FlatShader : SimpleShader() {
                 ) <= 0
             ) return@forEach
 
-            val lightedColor = lambert.render(obj, Vertex(observerPosition, 1), triangle, 0.3)
+            val lightedColor = lambert.render(obj, Vertex(observerPosition, 1), triangle)
 
             drawTriangle(
                 image,

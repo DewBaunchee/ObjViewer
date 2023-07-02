@@ -15,7 +15,6 @@ class PixelLine(val from: Pixel, val to: Pixel) {
             from.world.plus(stepY.world.multiplied(dy)),
             from.texel.plus(stepY.texel.multiplied(dy)),
             from.normal.plus(stepY.normal.multiplied(dy)),
-            stepY.face,
             stepY.triangle
         )
     }
@@ -27,7 +26,6 @@ class PixelLine(val from: Pixel, val to: Pixel) {
             from.world.plus(stepX.world.multiplied(dx)),
             from.texel.plus(stepX.texel.multiplied(dx)),
             from.normal.plus(stepX.normal.multiplied(dx)),
-            stepX.face,
             stepX.triangle
         )
     }
@@ -38,7 +36,6 @@ class PixelLine(val from: Pixel, val to: Pixel) {
             to.world.minus(from.world).multiplied(1.0 / diff),
             to.texel.minus(from.texel).multiplied(1.0 / diff),
             to.normal.minus(from.normal).multiplied(1.0 / diff),
-            to.face,
             to.triangle
         )
     }

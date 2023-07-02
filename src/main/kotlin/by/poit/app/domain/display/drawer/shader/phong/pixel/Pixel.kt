@@ -10,12 +10,11 @@ class Pixel(
     val world: Vector3,
     val texel: Vector3,
     val normal: Vector3,
-    val face: Face,
     val triangle: Face.Triangle
 ) {
 
     fun copy(): Pixel {
-        return Pixel(screen.copy(), world.copy(), texel.copy(), normal.copy(), face, triangle)
+        return Pixel(screen.copy(), world.copy(), texel.copy(), normal.copy(), triangle)
     }
 
     fun delta(pixel: Pixel): Pixel {
@@ -24,7 +23,6 @@ class Pixel(
             pixel.world.minus(world),
             pixel.texel.minus(texel),
             pixel.normal.minus(normal),
-            face,
             triangle
         )
     }
